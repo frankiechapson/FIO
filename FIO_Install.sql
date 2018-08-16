@@ -11,7 +11,16 @@
 
 
 
-
+/*
+drop table FIO_FILE_BLOBS;
+drop table FIO_FILE_LINES;
+drop table FIO_FILE_HEADERS;
+drop table FIO_FILE_TYPES;
+drop table FIO_FILE_STATUSES;
+drop table FIO_FILE_ERRORS;
+drop table FIO_LINE_ERRORS;
+drop sequence FIO_SEQ_ID;
+*/
 
 Prompt *****************************************************************
 Prompt **      I N S T A L L I N G   F I L E   I O   M G R            **
@@ -70,35 +79,61 @@ END;
 CREATE TABLE FIO_FILE_STATUSES (
 /*============================================================================================*/
     ID              NUMBER                  NOT NULL,
-    TEXT            VARCHAR2 (   2000 )     NOT NULL,
-    CONSTRAINT      PK_FIO_FILE_STATUSES    PRIMARY KEY ( ID )
+    TEXT            VARCHAR2 ( 2000 )       NOT NULL,
+    DIRECTION       CHAR     (    1 )       NOT NULL,      
+    CONSTRAINT      PK_FIO_FILE_STATUSES    PRIMARY KEY ( ID ),
+    CONSTRAINT      CH1_FIO_FILE_STATUSES   CHECK       ( DIRECTION IN ( 'I', 'O', 'B' ) )
     );
 
 -- Input files
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 11, 'Waiting for read'       );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 12, 'Reading'                );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 13, 'Waiting for identify'   );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 14, 'Identifing'             );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 15, 'Waiting for check'      );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 16, 'Checking'               );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 17, 'Waiting for process'    );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 18, 'Processing'             );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 19, 'Processed'              );
--- Output files            
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 21, 'Waiting for create'     );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 22, 'Creating'               );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 24, 'Waiting for write'      );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 25, 'Writing'                );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 26, 'Wrote'                  );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 27, 'Acknowledged'           );
--- Common
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 30, 'External process'       );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 31, 'Failed'                 );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 32, 'Waiting for delete'     );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 33, 'Deleting'               );
-INSERT INTO FIO_FILE_STATUSES ( ID, TEXT ) VALUES ( 34, 'Deleted (data)'         );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 11, 'Waiting for read'      ,'I' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 12, 'Reading'               ,'I' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 13, 'Waiting for identify'  ,'I' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 14, 'Identifing'            ,'I' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 15, 'Waiting for check'     ,'I' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 16, 'Checking'              ,'I' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 17, 'Waiting for process'   ,'I' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 18, 'Processing'            ,'I' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 19, 'Processed'             ,'I' );
+-- Output files                         
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 21, 'Waiting for create'    ,'O' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 22, 'Creating'              ,'O' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 24, 'Waiting for write'     ,'O' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 25, 'Writing'               ,'O' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 26, 'Wrote'                 ,'O' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 27, 'Acknowledged'          ,'O' );
+-- Common                                
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 30, 'External process'      ,'B' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 31, 'Failed'                ,'B' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 32, 'Waiting for delete'    ,'B' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 33, 'Deleting'              ,'B' );
+INSERT INTO FIO_FILE_STATUSES ( ID, TEXT , DIRECTION ) VALUES ( 34, 'Deleted (data)'        ,'B' );
 COMMIT;
 
+
+
+
+/*============================================================================================*/
+CREATE TABLE FIO_FILE_ERRORS (
+/*============================================================================================*/
+    ID              NUMBER                  NOT NULL,
+    TEXT            VARCHAR2 ( 2000 )       NOT NULL,
+    DIRECTION       CHAR     (    1 )       NOT NULL,      
+    CONSTRAINT      PK_FIO_FILE_ERRORS      PRIMARY KEY ( ID ),
+    CONSTRAINT      CH1_FIO_FILE_ERRORS     CHECK       ( DIRECTION IN ( 'I', 'O', 'B' ) )
+    );
+-- Fix codes
+INSERT INTO FIO_FILE_ERRORS ( ID, TEXT, DIRECTION ) VALUES (  1, 'Open'     , 'B' );
+INSERT INTO FIO_FILE_ERRORS ( ID, TEXT, DIRECTION ) VALUES (  2, 'Read'     , 'I' );
+INSERT INTO FIO_FILE_ERRORS ( ID, TEXT, DIRECTION ) VALUES (  3, 'Write'    , 'O' );
+INSERT INTO FIO_FILE_ERRORS ( ID, TEXT, DIRECTION ) VALUES (  4, 'Rename'   , 'B' );
+INSERT INTO FIO_FILE_ERRORS ( ID, TEXT, DIRECTION ) VALUES (  5, 'Unknown'  , 'B' );
+INSERT INTO FIO_FILE_ERRORS ( ID, TEXT, DIRECTION ) VALUES (  6, 'Identify' , 'I' );
+INSERT INTO FIO_FILE_ERRORS ( ID, TEXT, DIRECTION ) VALUES (  7, 'Check'    , 'I' );
+INSERT INTO FIO_FILE_ERRORS ( ID, TEXT, DIRECTION ) VALUES (  8, 'Process'  , 'I' );
+INSERT INTO FIO_FILE_ERRORS ( ID, TEXT, DIRECTION ) VALUES (  9, 'Delete'   , 'B' );
+INSERT INTO FIO_FILE_ERRORS ( ID, TEXT, DIRECTION ) VALUES ( 10, 'Create'   , 'O' );
+COMMIT;
 
 
 /*============================================================================================*/
@@ -117,13 +152,14 @@ CREATE TABLE FIO_FILE_HEADERS (
     IO_DATE                 DATE,
     CONFIRM_DATE            DATE,
     LAST_STAT_CHNG_DATE     DATE,
-    ERROR_CODE              NUMBER,
+    ERROR_ID                NUMBER,
     ERROR_TEXT              VARCHAR2 ( 2000 ),
     REMARK                  VARCHAR2 ( 2000 ),
     CONSTRAINT              PK_FIO_FILE_HEADERS          PRIMARY KEY ( ID ),
     CONSTRAINT              CH1_FIO_FILE_HEADERS         CHECK       ( DIRECTION IN ( 'I', 'O' ) ),
     CONSTRAINT              FK1_FIO_FILE_HEADERS         FOREIGN KEY ( FILE_TYPE_ID    ) REFERENCES FIO_FILE_TYPES    ( ID ),
-    CONSTRAINT              FK2_FIO_FILE_HEADERS         FOREIGN KEY ( FILE_STATUS_ID  ) REFERENCES FIO_FILE_STATUSES ( ID )
+    CONSTRAINT              FK2_FIO_FILE_HEADERS         FOREIGN KEY ( FILE_STATUS_ID  ) REFERENCES FIO_FILE_STATUSES ( ID ),
+    CONSTRAINT              FK3_FIO_FILE_HEADERS         FOREIGN KEY ( ERROR_ID        ) REFERENCES FIO_FILE_ERRORS   ( ID )
   );
 
 
@@ -152,6 +188,9 @@ BEGIN
     END IF;
     :NEW.DIRECTION      := UPPER( :NEW.DIRECTION       );
     :NEW.MODIFIED       := NVL( :NEW.MODIFIED, SYSDATE );
+    if :OLD.FILE_TYPE_ID is null and :NEW.FILE_TYPE_ID is not null then
+        :NEW.FILE_STATUS_ID := 15;
+    end if;
     if :OLD.FILE_STATUS_ID != :NEW.FILE_STATUS_ID then
         :NEW.LAST_STAT_CHNG_DATE := sysdate;
     end if;
@@ -181,6 +220,29 @@ END;
 
 
 
+/*============================================================================================*/
+CREATE TABLE FIO_LINE_ERRORS (
+/*============================================================================================*/
+    ID              NUMBER                  NOT NULL,
+    TEXT            VARCHAR2 ( 2000 )       NOT NULL,
+    CONSTRAINT      PK_FIO_LINE_ERRORS      PRIMARY KEY ( ID )
+    );
+-- some typical error
+INSERT INTO FIO_LINE_ERRORS ( ID, TEXT ) VALUES (  0, 'Unknown Error'     );
+INSERT INTO FIO_LINE_ERRORS ( ID, TEXT ) VALUES (  1, 'Invalid number'    );
+INSERT INTO FIO_LINE_ERRORS ( ID, TEXT ) VALUES (  2, 'Invalid date'      );
+INSERT INTO FIO_LINE_ERRORS ( ID, TEXT ) VALUES (  3, 'Invalid time'      );
+INSERT INTO FIO_LINE_ERRORS ( ID, TEXT ) VALUES (  4, 'String too long'   );
+INSERT INTO FIO_LINE_ERRORS ( ID, TEXT ) VALUES (  5, 'Too many data'     );
+INSERT INTO FIO_LINE_ERRORS ( ID, TEXT ) VALUES (  6, 'Not enough data'   );
+INSERT INTO FIO_LINE_ERRORS ( ID, TEXT ) VALUES (  7, 'It is not Header Line'   );
+INSERT INTO FIO_LINE_ERRORS ( ID, TEXT ) VALUES (  8, 'It is not Trailer Line'   );
+INSERT INTO FIO_LINE_ERRORS ( ID, TEXT ) VALUES (  9, 'Wrong number of rows'   );
+INSERT INTO FIO_LINE_ERRORS ( ID, TEXT ) VALUES ( 10, 'Wrong checksum'   );
+COMMIT;
+
+
+
 
 /*============================================================================================*/
 CREATE TABLE FIO_FILE_LINES (
@@ -189,9 +251,10 @@ CREATE TABLE FIO_FILE_LINES (
     FILE_HEADER_ID          NUMBER                  NOT NULL,
     LINE_NO                 NUMBER                  NOT NULL,
     LINE                    VARCHAR2 ( 4000 ),
-    ERROR_CODE              NUMBER,
+    ERROR_ID                NUMBER,
     CONSTRAINT              PK_FIO_FILE_LINES          PRIMARY KEY ( ID ),
-    CONSTRAINT              FK1_FIO_FILE_LINES         FOREIGN KEY ( FILE_HEADER_ID ) REFERENCES FIO_FILE_HEADERS ( ID )
+    CONSTRAINT              FK1_FIO_FILE_LINES         FOREIGN KEY ( FILE_HEADER_ID ) REFERENCES FIO_FILE_HEADERS ( ID ),
+    CONSTRAINT              FK2_FIO_FILE_LINES         FOREIGN KEY ( ERROR_ID       ) REFERENCES FIO_LINE_ERRORS  ( ID )
   );
 
 CREATE        INDEX IDX1_FIO_FILE_LINES     ON FIO_FILE_LINES ( FILE_HEADER_ID );
@@ -291,11 +354,11 @@ create or replace package PKG_FIO is
     C_ERROR_WRITE               CONSTANT number  := 3;
     C_ERROR_RENAME              CONSTANT number  := 4;
     C_ERROR_OTHER               CONSTANT number  := 5;
-    C_ERROR_IDENTIFY            CONSTANT number  := 10;
-    C_ERROR_CHECK               CONSTANT number  := 11;
-    C_ERROR_PROCESS             CONSTANT number  := 12;
-    C_ERROR_DELETE              CONSTANT number  := 13;
-    C_ERROR_CREATE              CONSTANT number  := 14;
+    C_ERROR_IDENTIFY            CONSTANT number  := 6;
+    C_ERROR_CHECK               CONSTANT number  := 7;
+    C_ERROR_PROCESS             CONSTANT number  := 8;
+    C_ERROR_DELETE              CONSTANT number  := 9;
+    C_ERROR_CREATE              CONSTANT number  := 10;
 
     C_STATUS_EXTRENAL           CONSTANT number  := 30;    
     C_STATUS_4_READ             CONSTANT number  := 11;
@@ -319,19 +382,19 @@ create or replace package PKG_FIO is
 
 
     ------------------------------------------------------------------------------------
-    function  FILE_EXISTS ( I_ORA_DIR       in varchar2
-                          , I_FILE_NAME     in varchar2
-                          ) return char;
+    function   FILE_EXISTS ( I_ORA_DIR       in varchar2
+                           , I_FILE_NAME     in varchar2
+                           ) return char;
     ------------------------------------------------------------------------------------
-    function  GET_FILE_EXTENTION ( I_FILE_NAME      in varchar2 ) return varchar2;
+    function   GET_FILE_EXTENTION ( I_FILE_NAME      in varchar2 ) return varchar2;
     ------------------------------------------------------------------------------------
-    function  GET_ORA_DIRECTORY  ( I_OS_DIRECTORY   in varchar2 ) return varchar2;
+    function   GET_ORA_DIRECTORY  ( I_OS_DIRECTORY   in varchar2 ) return varchar2;
     ------------------------------------------------------------------------------------
-    function  GET_OS_DIRECTORY   ( I_ORA_DIRECTORY  in varchar2 ) return varchar2;
+    function   GET_OS_DIRECTORY   ( I_ORA_DIRECTORY  in varchar2 ) return varchar2;
     ------------------------------------------------------------------------------------
-    function  MASK_MATCH( I_MASK        in varchar2
-                        , I_FILE_NAME   in varchar2 
-                        ) return number;
+    function   MASK_MATCH( I_MASK        in varchar2
+                         , I_FILE_NAME   in varchar2 
+                         ) return number;
     ------------------------------------------------------------------------------------
     procedure  BLOB_TO_LINES  ( I_FILE_HEADER_ID    in number );
     ------------------------------------------------------------------------------------
@@ -370,6 +433,8 @@ create or replace package PKG_FIO is
     procedure  WRITE_FILES;
     ------------------------------------------------------------------------------------
 
+    ------------------------------------------------------------------------------------
+    procedure  DELETE_FILE_DATA ( I_FILE_HEADER_ID   in number );
     ------------------------------------------------------------------------------------
     procedure  DELETE_FILES;
     ------------------------------------------------------------------------------------
@@ -596,7 +661,7 @@ create or replace package body PKG_FIO is
         V_FILE_REC.IO_DATE                := null;
         V_FILE_REC.CONFIRM_DATE           := null;
         V_FILE_REC.LAST_STAT_CHNG_DATE    := sysdate;
-        V_FILE_REC.ERROR_CODE             := null;
+        V_FILE_REC.ERROR_ID               := null;
         V_FILE_REC.ERROR_TEXT             := null;
 
         insert into FIO_FILE_HEADERS values V_FILE_REC;       
@@ -629,7 +694,7 @@ create or replace package body PKG_FIO is
             V_STRING := sqlerrm;
             update FIO_FILE_HEADERS
                set FILE_STATUS_ID = C_STATUS_FAILED
-                 , ERROR_CODE     = C_ERROR_RENAME
+                 , ERROR_ID       = C_ERROR_RENAME
                  , ERROR_TEXT     = V_NUMBER||' '||V_STRING 
              where ID = I_FILE_HEADER_ID;
             commit;
@@ -643,7 +708,7 @@ create or replace package body PKG_FIO is
             V_STRING := sqlerrm;
             update FIO_FILE_HEADERS
                set FILE_STATUS_ID = C_STATUS_FAILED
-                 , ERROR_CODE     = C_ERROR_OPEN
+                 , ERROR_ID       = C_ERROR_OPEN
                  , ERROR_TEXT     = V_NUMBER||' '||V_STRING 
              where ID = I_FILE_HEADER_ID;
             commit;
@@ -655,7 +720,7 @@ create or replace package body PKG_FIO is
 
         update FIO_FILE_HEADERS 
            set FILE_STATUS_ID = C_STATUS_READING
-             , ERROR_CODE     = null 
+             , ERROR_ID       = null 
              , ERROR_TEXT     = null 
          where ID = I_FILE_HEADER_ID;     
         commit;
@@ -677,7 +742,7 @@ create or replace package body PKG_FIO is
                     V_STRING := sqlerrm;
                     update FIO_FILE_HEADERS
                        set FILE_STATUS_ID = C_STATUS_FAILED
-                         , ERROR_CODE     = C_ERROR_READ
+                         , ERROR_ID       = C_ERROR_READ
                          , ERROR_TEXT     = V_NUMBER||' '||V_STRING
                      where ID = I_FILE_HEADER_ID;
                     commit;
@@ -700,7 +765,7 @@ create or replace package body PKG_FIO is
             V_STRING := sqlerrm;
             update FIO_FILE_HEADERS
                set FILE_STATUS_ID = C_STATUS_FAILED
-                 , ERROR_CODE     = C_ERROR_RENAME
+                 , ERROR_ID       = C_ERROR_RENAME
                  , ERROR_TEXT     = V_NUMBER||' '||V_STRING
              where ID = I_FILE_HEADER_ID;
             commit;
@@ -718,7 +783,7 @@ create or replace package body PKG_FIO is
         V_STRING := sqlerrm;
         update FIO_FILE_HEADERS
            set FILE_STATUS_ID = C_STATUS_FAILED
-             , ERROR_CODE     = C_ERROR_OTHER
+             , ERROR_ID       = C_ERROR_OTHER
              , ERROR_TEXT     = V_NUMBER||' '||V_STRING
          where ID = I_FILE_HEADER_ID;
         commit;
@@ -752,7 +817,7 @@ create or replace package body PKG_FIO is
             V_STRING := sqlerrm;
             update FIO_FILE_HEADERS
                set FILE_STATUS_ID = C_STATUS_FAILED    -- FAILED
-                 , ERROR_CODE     = C_ERROR_RENAME
+                 , ERROR_ID       = C_ERROR_RENAME
                  , ERROR_TEXT     = V_NUMBER||' '||V_STRING 
              where ID = I_FILE_HEADER_ID;
             commit;
@@ -767,7 +832,7 @@ create or replace package body PKG_FIO is
             V_STRING := sqlerrm;
             update FIO_FILE_HEADERS
                set FILE_STATUS_ID = C_STATUS_FAILED    -- FAILED
-                 , ERROR_CODE     = C_ERROR_OPEN
+                 , ERROR_ID       = C_ERROR_OPEN
                  , ERROR_TEXT     = V_NUMBER||' '||V_STRING 
              where ID = I_FILE_HEADER_ID;
             commit;
@@ -779,7 +844,7 @@ create or replace package body PKG_FIO is
 
         update FIO_FILE_HEADERS 
            set FILE_STATUS_ID = C_STATUS_READING
-             , ERROR_CODE     = null 
+             , ERROR_ID       = null 
              , ERROR_TEXT     = null 
          where ID = I_FILE_HEADER_ID;     
         commit;
@@ -800,7 +865,7 @@ create or replace package body PKG_FIO is
             V_STRING := sqlerrm;
             update FIO_FILE_HEADERS
                set FILE_STATUS_ID = C_STATUS_FAILED    -- FAILED
-                 , ERROR_CODE     = C_ERROR_RENAME
+                 , ERROR_ID       = C_ERROR_RENAME
                  , ERROR_TEXT     = V_NUMBER||' '||V_STRING 
              where ID = I_FILE_HEADER_ID;
             commit;
@@ -823,7 +888,7 @@ create or replace package body PKG_FIO is
         V_STRING := sqlerrm;
         update FIO_FILE_HEADERS
            set FILE_STATUS_ID = C_STATUS_FAILED    -- FAILED
-             , ERROR_CODE     = C_ERROR_OTHER
+             , ERROR_ID       = C_ERROR_OTHER
              , ERROR_TEXT     = V_NUMBER||' '||V_STRING
          where ID = I_FILE_HEADER_ID;
         commit;
@@ -874,9 +939,8 @@ create or replace package body PKG_FIO is
 
             update FIO_FILE_HEADERS 
                set FILE_STATUS_ID = C_STATUS_IDENTIFING
-                 , ERROR_CODE     = null 
+                 , ERROR_ID       = null 
                  , ERROR_TEXT     = null 
-                 , FILE_TYPE_ID   = null
              where ID = V_FILE_HEADER_ID;    
             commit;
 
@@ -886,7 +950,7 @@ create or replace package body PKG_FIO is
               from FIO_FILE_TYPES
              where L_FILES.DIRECTION                    = DIRECTION
                and upper( nvl( L_FILES.OS_DIRECTORY    , 'X' ) ) = upper( nvl( OS_DIRECTORY    , nvl( L_FILES.OS_DIRECTORY    , 'X' ) ) )
-               and upper( nvl( L_FILES.ORACLE_DIRECTORY, 'X' ) ) = upper( nvl( ORACLE_DIRECTORY, nvl( L_FILES.ORACLE_DIRECTORY, 'X' ) ) )
+             /*  and upper( nvl( L_FILES.ORACLE_DIRECTORY, 'X' ) ) = upper( nvl( ORACLE_DIRECTORY, nvl( L_FILES.ORACLE_DIRECTORY, 'X' ) ) ) */
                and MASK_MATCH( MASK, L_FILES.NAME )     = 1;
 
             if V_MIN_ID is null or V_MIN_ID != V_MAX_ID then   
@@ -913,7 +977,7 @@ create or replace package body PKG_FIO is
 
                 update FIO_FILE_HEADERS 
                    set FILE_STATUS_ID = C_STATUS_4_CHECK
-                     , ERROR_CODE     = null 
+                     , ERROR_ID       = null 
                      , ERROR_TEXT     = null 
                      , FILE_TYPE_ID   = V_MIN_ID
                  where ID = V_FILE_HEADER_ID;    
@@ -926,7 +990,7 @@ create or replace package body PKG_FIO is
             else
                 update FIO_FILE_HEADERS 
                    set FILE_STATUS_ID = C_STATUS_FAILED
-                     , ERROR_CODE     = C_ERROR_IDENTIFY 
+                     , ERROR_ID       = C_ERROR_IDENTIFY 
                      , ERROR_TEXT     = 'Unknown file type'
                      , FILE_TYPE_ID   = null
                  where ID = V_FILE_HEADER_ID;    
@@ -941,7 +1005,7 @@ create or replace package body PKG_FIO is
         V_STRING := sqlerrm;
         update FIO_FILE_HEADERS
            set FILE_STATUS_ID = C_STATUS_FAILED    
-             , ERROR_CODE     = C_ERROR_IDENTIFY
+             , ERROR_ID       = C_ERROR_IDENTIFY
              , ERROR_TEXT     = V_NUMBER||' '||V_STRING
          where ID = V_FILE_HEADER_ID;
         commit;
@@ -962,16 +1026,17 @@ create or replace package body PKG_FIO is
 
             V_FILE_HEADER_ID := L_FILES.ID;
 
-            update FIO_FILE_HEADERS 
-               set FILE_STATUS_ID = C_STATUS_CHECKING
-                 , ERROR_CODE     = null 
-                 , ERROR_TEXT     = null 
-                 , FILE_TYPE_ID   = null
-             where ID = V_FILE_HEADER_ID;    
-            commit;
-
             for L_TYPES in ( select * from FIO_FILE_TYPES where ID = L_FILES.FILE_TYPE_ID )
             loop    
+
+                update FIO_FILE_HEADERS 
+                   set FILE_STATUS_ID = C_STATUS_CHECKING
+                     , ERROR_ID       = null 
+                     , ERROR_TEXT     = null 
+                 where ID = V_FILE_HEADER_ID
+                   and L_TYPES.CHECK_PROCEDURE is not null;    
+                commit;
+
                 begin
                     execute immediate L_TYPES.CHECK_PROCEDURE using V_FILE_HEADER_ID;
                 exception when others then
@@ -987,7 +1052,7 @@ create or replace package body PKG_FIO is
         V_STRING := sqlerrm;
         update FIO_FILE_HEADERS
            set FILE_STATUS_ID = C_STATUS_FAILED    
-             , ERROR_CODE     = C_ERROR_CHECK
+             , ERROR_ID       = C_ERROR_CHECK
              , ERROR_TEXT     = V_NUMBER||' '||V_STRING
          where ID = V_FILE_HEADER_ID;
         commit;
@@ -1008,16 +1073,16 @@ create or replace package body PKG_FIO is
 
             V_FILE_HEADER_ID := L_FILES.ID;
 
-            update FIO_FILE_HEADERS 
-               set FILE_STATUS_ID = C_STATUS_PROCESSING
-                 , ERROR_CODE     = null 
-                 , ERROR_TEXT     = null 
-                 , FILE_TYPE_ID   = null
-             where ID = V_FILE_HEADER_ID;    
-            commit;
-
             for L_TYPES in ( select * from FIO_FILE_TYPES where ID = L_FILES.FILE_TYPE_ID )
             loop    
+                update FIO_FILE_HEADERS 
+                   set FILE_STATUS_ID = C_STATUS_PROCESSING
+                     , ERROR_ID       = null 
+                     , ERROR_TEXT     = null 
+                 where ID = V_FILE_HEADER_ID    
+                   and L_TYPES.PROCESS_PROCEDURE is not null;    
+                commit;
+
                 begin
                     execute immediate L_TYPES.PROCESS_PROCEDURE using V_FILE_HEADER_ID;
                 exception when others then
@@ -1033,7 +1098,7 @@ create or replace package body PKG_FIO is
         V_STRING := sqlerrm;
         update FIO_FILE_HEADERS
            set FILE_STATUS_ID = C_STATUS_FAILED    
-             , ERROR_CODE     = C_ERROR_PROCESS
+             , ERROR_ID       = C_ERROR_PROCESS
              , ERROR_TEXT     = V_NUMBER||' '||V_STRING
          where ID = V_FILE_HEADER_ID;
         commit;
@@ -1053,16 +1118,17 @@ create or replace package body PKG_FIO is
 
             V_FILE_HEADER_ID := L_FILES.ID;
 
-            update FIO_FILE_HEADERS 
-               set FILE_STATUS_ID = C_STATUS_CREATING
-                 , ERROR_CODE     = null 
-                 , ERROR_TEXT     = null 
-                 , FILE_TYPE_ID   = null
-             where ID = V_FILE_HEADER_ID;    
-            commit;
 
             for L_TYPES in ( select * from FIO_FILE_TYPES where ID = L_FILES.FILE_TYPE_ID )
             loop    
+                update FIO_FILE_HEADERS 
+                   set FILE_STATUS_ID = C_STATUS_CREATING
+                     , ERROR_ID       = null 
+                     , ERROR_TEXT     = null 
+                 where ID = V_FILE_HEADER_ID  
+                   and L_TYPES.CREATE_PROCEDURE is not null;    
+                commit;
+
                 begin
                     execute immediate L_TYPES.CREATE_PROCEDURE using V_FILE_HEADER_ID;
                 exception when others then
@@ -1078,13 +1144,25 @@ create or replace package body PKG_FIO is
         V_STRING := sqlerrm;
         update FIO_FILE_HEADERS
            set FILE_STATUS_ID = C_STATUS_FAILED    
-             , ERROR_CODE     = C_ERROR_CREATE
+             , ERROR_ID       = C_ERROR_CREATE
              , ERROR_TEXT     = V_NUMBER||' '||V_STRING
          where ID = V_FILE_HEADER_ID;
         commit;
 
     end;
 
+
+    ------------------------------------------------------------------------------------
+    procedure  DELETE_FILE_DATA ( I_FILE_HEADER_ID   in number ) is
+    ------------------------------------------------------------------------------------
+    begin
+        delete FIO_FILE_BLOBS where FILE_HEADER_ID = I_FILE_HEADER_ID;
+        delete FIO_FILE_LINES where FILE_HEADER_ID = I_FILE_HEADER_ID;
+        update FIO_FILE_HEADERS 
+           set FILE_STATUS_ID = C_STATUS_DELETED
+         where ID = I_FILE_HEADER_ID;    
+        commit;
+    end;
 
     ------------------------------------------------------------------------------------
     procedure DELETE_FILES is
@@ -1098,23 +1176,36 @@ create or replace package body PKG_FIO is
 
             V_FILE_HEADER_ID := L_FILES.ID;
 
-            update FIO_FILE_HEADERS 
-               set FILE_STATUS_ID = C_STATUS_DELETING
-                 , ERROR_CODE     = null 
-                 , ERROR_TEXT     = null 
-                 , FILE_TYPE_ID   = null
-             where ID = V_FILE_HEADER_ID;    
-            commit;
 
-            for L_TYPES in ( select * from FIO_FILE_TYPES where ID = L_FILES.FILE_TYPE_ID )
-            loop    
-                begin
-                    execute immediate L_TYPES.DELETE_PROCEDURE using V_FILE_HEADER_ID;
-                exception when others then
-                    null;
-                end;
-            end loop;
-    
+            if L_FILES.FILE_TYPE_ID is null then
+
+                update FIO_FILE_HEADERS 
+                   set FILE_STATUS_ID = C_STATUS_DELETING
+                     , ERROR_ID       = null 
+                     , ERROR_TEXT     = null 
+                 where ID = V_FILE_HEADER_ID;    
+                commit;
+                DELETE_FILE_DATA ( V_FILE_HEADER_ID );
+
+            else
+
+                for L_TYPES in ( select * from FIO_FILE_TYPES where ID = L_FILES.FILE_TYPE_ID )
+                loop    
+                    update FIO_FILE_HEADERS 
+                       set FILE_STATUS_ID = C_STATUS_DELETING
+                         , ERROR_ID       = null 
+                         , ERROR_TEXT     = null 
+                     where ID = V_FILE_HEADER_ID;    
+                    commit;
+                    begin
+                        execute immediate L_TYPES.DELETE_PROCEDURE using V_FILE_HEADER_ID;
+                    exception when others then
+                        null;
+                    end;
+                end loop;
+
+            end if;
+
         end loop;
 
     exception when others then
@@ -1123,7 +1214,7 @@ create or replace package body PKG_FIO is
         V_STRING := sqlerrm;
         update FIO_FILE_HEADERS
            set FILE_STATUS_ID = C_STATUS_FAILED    
-             , ERROR_CODE     = C_ERROR_DELETE
+             , ERROR_ID       = C_ERROR_DELETE
              , ERROR_TEXT     = V_NUMBER||' '||V_STRING
          where ID = V_FILE_HEADER_ID;
         commit;
@@ -1153,7 +1244,7 @@ create or replace package body PKG_FIO is
             V_STRING := sqlerrm;
             update FIO_FILE_HEADERS
                set FILE_STATUS_ID = C_STATUS_FAILED    -- FAILED
-                 , ERROR_CODE     = C_ERROR_OPEN
+                 , ERROR_ID       = C_ERROR_OPEN
                  , ERROR_TEXT     = null
              where ID = I_FILE_HEADER_ID;
             commit;
@@ -1162,7 +1253,7 @@ create or replace package body PKG_FIO is
 
         update FIO_FILE_HEADERS 
            set FILE_STATUS_ID = C_STATUS_WRITING
-             , ERROR_CODE     = null 
+             , ERROR_ID       = null 
              , ERROR_TEXT     = null
          where ID = I_FILE_HEADER_ID;     -- under writing out
         commit;
@@ -1176,7 +1267,7 @@ create or replace package body PKG_FIO is
                 V_STRING := sqlerrm;
                 update FIO_FILE_HEADERS
                    set FILE_STATUS_ID = C_STATUS_FAILED    -- FAILED
-                     , ERROR_CODE     = C_ERROR_WRITE       
+                     , ERROR_ID       = C_ERROR_WRITE       
                      , ERROR_TEXT     = V_NUMBER||' '||V_STRING
                  where ID = I_FILE_HEADER_ID;
                 commit;
@@ -1198,7 +1289,7 @@ create or replace package body PKG_FIO is
             V_STRING := sqlerrm;
             update FIO_FILE_HEADERS
                set FILE_STATUS_ID = C_STATUS_FAILED    -- FAILED
-                 , ERROR_CODE     = C_ERROR_RENAME
+                 , ERROR_ID       = C_ERROR_RENAME
                  , ERROR_TEXT     = V_NUMBER||' '||V_STRING
              where ID = I_FILE_HEADER_ID;
             commit;
@@ -1219,7 +1310,7 @@ create or replace package body PKG_FIO is
         V_STRING := sqlerrm;
         update FIO_FILE_HEADERS
            set FILE_STATUS_ID = C_STATUS_FAILED    -- FAILED
-             , ERROR_CODE     = C_ERROR_OTHER
+             , ERROR_ID       = C_ERROR_OTHER
              , ERROR_TEXT     = V_NUMBER||' '||V_STRING
          where ID = I_FILE_HEADER_ID;
         commit;
@@ -1271,7 +1362,7 @@ create or replace package body PKG_FIO is
             V_STRING := sqlerrm;
             update FIO_FILE_HEADERS
                set FILE_STATUS_ID = C_STATUS_FAILED    -- FAILED
-                 , ERROR_CODE     = C_ERROR_OPEN
+                 , ERROR_ID       = C_ERROR_OPEN
                  , ERROR_TEXT     = V_NUMBER||' '||V_STRING
              where ID = I_FILE_HEADER_ID;
             commit;
@@ -1280,7 +1371,7 @@ create or replace package body PKG_FIO is
 
         update FIO_FILE_HEADERS 
            set FILE_STATUS_ID = C_STATUS_WRITING
-             , ERROR_CODE     = null 
+             , ERROR_ID       = null 
              , ERROR_TEXT     = null
          where ID = I_FILE_HEADER_ID;     -- under writing out
         commit;
@@ -1298,7 +1389,7 @@ create or replace package body PKG_FIO is
                 V_STRING := sqlerrm;
                 update FIO_FILE_HEADERS
                    set FILE_STATUS_ID = C_STATUS_FAILED    -- FAILED
-                     , ERROR_CODE     = C_ERROR_WRITE      
+                     , ERROR_ID       = C_ERROR_WRITE      
                      , ERROR_TEXT     = V_NUMBER||' '||V_STRING
                  where ID = I_FILE_HEADER_ID;
                 commit;
@@ -1323,7 +1414,7 @@ create or replace package body PKG_FIO is
             V_STRING := sqlerrm;
             update FIO_FILE_HEADERS
                set FILE_STATUS_ID = C_STATUS_FAILED    -- FAILED
-                 , ERROR_CODE     = C_ERROR_RENAME
+                 , ERROR_ID       = C_ERROR_RENAME
                  , ERROR_TEXT     = V_NUMBER||' '||V_STRING
              where ID = I_FILE_HEADER_ID;
             commit;
@@ -1344,7 +1435,7 @@ create or replace package body PKG_FIO is
         V_STRING := sqlerrm;
         update FIO_FILE_HEADERS
            set FILE_STATUS_ID = C_STATUS_FAILED    -- FAILED
-             , ERROR_CODE     = C_ERROR_OTHER
+             , ERROR_ID       = C_ERROR_OTHER
              , ERROR_TEXT     = V_NUMBER||' '||V_STRING
          where ID = I_FILE_HEADER_ID;
         commit;
@@ -1406,4 +1497,56 @@ create or replace package body PKG_FIO is
 
 end;
 /
+
+
+
+
+
+/*************************************/
+Prompt   J O B S
+/*************************************/
+
+DECLARE
+  X NUMBER;
+BEGIN
+  SYS.DBMS_JOB.SUBMIT
+    ( job       => X
+     ,what      => 'PKG_FIO.INP_JOB_PROC;'
+     ,next_date => SYSDATE+5/1440
+     ,interval  => 'SYSDATE+5/1440'
+     ,no_parse  => TRUE
+    );
+END;
+/
+
+
+DECLARE
+  X NUMBER;
+BEGIN
+  SYS.DBMS_JOB.SUBMIT
+    ( job       => X
+     ,what      => 'PKG_FIO.OUT_JOB_PROC;'
+     ,next_date => SYSDATE+5/1440
+     ,interval  => 'SYSDATE+5/1440'
+     ,no_parse  => TRUE
+    );
+END;
+/
+
+DECLARE
+  X NUMBER;
+BEGIN
+  SYS.DBMS_JOB.SUBMIT
+    ( job       => X
+     ,what      => 'PKG_FIO.CLEAN_JOB_PROC;'
+     ,next_date => SYSDATE+5/1440
+     ,interval  => 'SYSDATE+5/1440'
+     ,no_parse  => TRUE
+    );
+END;
+/
+COMMIT;
+
+
+
 
