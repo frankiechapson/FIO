@@ -6,7 +6,7 @@
     yyyy.mm.dd | Version | Author         | Changes
     -----------+---------+----------------+-------------------------
     2017.01.05 |  1.0    | Ferenc Toth    | Created 
-    2018.08.16 |  1.1    | Ferenc Toth    | The 1.1 was a modified version of a working one, but during the upgrade I made a lot of bug.
+    2018.08.16 |  1.1    | Ferenc Toth    | The 1.0 was a modified version of a working one, but during the upgrade I made a lot of bugs.
 
 ********************************************************************************************************************/
 
