@@ -6,7 +6,8 @@
     yyyy.mm.dd | Version | Author         | Changes
     -----------+---------+----------------+-------------------------
     2017.01.05 |  1.0    | Ferenc Toth    | Created 
-    2018.08.16 |  1.1    | Ferenc Toth    | The 1.0 was a modified version of a working one, but during the upgrade I made a lot of bugs.
+    2018.08.16 |  1.1    | Ferenc Toth    | The 1.0 was a modified version of a working one, but during the upgrade I made a lot of bug.
+    2018.08.17 |  1.2    | Ferenc Toth    | PKG_FIO.BLOB_TO_LINES
 
 ********************************************************************************************************************/
 
@@ -464,6 +465,9 @@ create or replace package body PKG_FIO is
     yyyy.mm.dd | Version | Author   | Changes
     -----------+---------+----------+-------------------------
     2016.01.12 |  1.0    | Tothf    | Created
+    2018.08.16 |  1.1    | Tothf    | The 1.0 was a modified version of a working one, but during the upgrade I made a lot of bug.
+    2018.08.17 |  1.2    | Tothf    | BLOB_TO_LINES
+
 */
 
 
@@ -601,7 +605,7 @@ create or replace package body PKG_FIO is
                 for L_I in 1..V_STRING_LIST.count 
                 loop
                     V_FILE_LINE.LINE := V_FILE_LINE.LINE || V_STRING_LIST( L_I );
-                    if L_I < V_STRING_LIST.count then  -- the last row should be truncated
+                    if L_I < V_STRING_LIST.count or substr( V_BUFFER, length( V_BUFFER ), 1 ) = chr( 10 ) then  -- the last row should be truncated
                         V_FILE_LINE.ID      := FIO_SEQ_ID.nextval;
                         V_FILE_LINE.LINE_NO := V_FILE_LINE.LINE_NO + 1;
                         insert into FIO_FILE_LINES values V_FILE_LINE;
